@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Top layer (filled) -->
+  <path d="M12 3L2 8l10 5 10-5-10-5z" fill="currentColor" opacity="1"/>
+  <!-- Middle layer -->
+  <path d="M2 13l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+  <!-- Bottom layer -->
+  <path d="M2 18l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+</svg>

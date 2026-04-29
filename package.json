@@ -1,0 +1,152 @@
+{
+	"name": "git-shelving",
+	"displayName": "Git Shelving",
+	"description": "Branch-aware shelving system — stash changes per branch and restore them automatically when you switch back.",
+	"version": "0.1.0",
+	"publisher": "git-shelving",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"SCM Providers",
+		"Other"
+	],
+	"activationEvents": [
+		"workspaceContains:.git"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "git-shelving-container",
+					"title": "Git Shelving",
+					"icon": "resources/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"git-shelving-container": [
+				{
+					"id": "gitShelving.branchesView",
+					"name": "Branches"
+				},
+				{
+					"id": "gitShelving.shelvesView",
+					"name": "Shelves"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "gitShelving.switchBranch",
+				"title": "Switch Branch",
+				"category": "Git Shelving",
+				"icon": "$(arrow-swap)"
+			},
+			{
+				"command": "gitShelving.shelveChanges",
+				"title": "Shelve Changes",
+				"category": "Git Shelving",
+				"icon": "$(archive)"
+			},
+			{
+				"command": "gitShelving.unshelveChanges",
+				"title": "Unshelve Changes",
+				"category": "Git Shelving",
+				"icon": "$(inbox)"
+			},
+			{
+				"command": "gitShelving.unshelveShelf",
+				"title": "Unshelve",
+				"category": "Git Shelving",
+				"icon": "$(inbox)"
+			},
+			{
+				"command": "gitShelving.deleteShelf",
+				"title": "Delete Shelf",
+				"category": "Git Shelving",
+				"icon": "$(trash)"
+			},
+			{
+				"command": "gitShelving.discardAndSwitchBranch",
+				"title": "Discard & Switch",
+				"category": "Git Shelving",
+				"icon": "$(circle-slash)"
+			},
+			{
+				"command": "gitShelving.refresh",
+				"title": "Refresh",
+				"category": "Git Shelving",
+				"icon": "$(refresh)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "gitShelving.refresh",
+					"when": "view == gitShelving.branchesView || view == gitShelving.shelvesView",
+					"group": "navigation@3"
+				},
+				{
+					"command": "gitShelving.switchBranch",
+					"when": "view == gitShelving.branchesView",
+					"group": "navigation@1"
+				},
+				{
+					"command": "gitShelving.shelveChanges",
+					"when": "view == gitShelving.branchesView",
+					"group": "navigation@2"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "gitShelving.switchBranch",
+					"when": "view == gitShelving.branchesView && (viewItem == branch || viewItem == branchWithShelf)",
+					"group": "inline@1"
+				},
+				{
+					"command": "gitShelving.discardAndSwitchBranch",
+					"when": "view == gitShelving.branchesView && (viewItem == branch || viewItem == branchWithShelf)",
+					"group": "inline@2"
+				},
+				{
+					"command": "gitShelving.unshelveShelf",
+					"when": "view == gitShelving.shelvesView && viewItem == shelf",
+					"group": "inline@1"
+				},
+				{
+					"command": "gitShelving.deleteShelf",
+					"when": "view == gitShelving.shelvesView && viewItem == shelf",
+					"group": "inline@2"
+				},
+				{
+					"command": "gitShelving.deleteShelf",
+					"when": "view == gitShelving.shelvesView && viewItem == shelf",
+					"group": "1_actions"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "gitShelving.unshelveShelf",
+					"when": "false"
+				},
+				{
+					"command": "gitShelving.discardAndSwitchBranch",
+					"when": "false"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint src --ext ts"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"@types/vscode": "^1.85.0",
+		"typescript": "^5.3.0"
+	}
+}
