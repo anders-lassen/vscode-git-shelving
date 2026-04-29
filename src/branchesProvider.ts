@@ -58,10 +58,21 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
 	>();
 	readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
+	private filterQuery = "";
+
 	constructor(
 		private readonly git: GitService,
 		private readonly shelveManager: ShelveManager,
 	) {}
+
+	setFilter(query: string): void {
+		this.filterQuery = query;
+		this._onDidChangeTreeData.fire();
+	}
+
+	getFilter(): string {
+		return this.filterQuery;
+	}
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
@@ -81,18 +92,29 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
 
 			const shelvedBranches = new Set(shelves.map((s) => s.branchName));
 
-			// Current branch first, then alphabetical.
-			branches.sort((a, b) => {
+			// Apply search filter.
+			const q = this.filterQuery.toLowerCase();
+			const filtered = q
+				? branches.filter((b) => b.toLowerCase().includes(q))
+				: branches;
+
+			// Current branch first, then shelved, then alphabetical.
+			filtered.sort((a, b) => {
 				if (a === currentBranch) {
 					return -1;
 				}
 				if (b === currentBranch) {
 					return 1;
 				}
+				const aS = shelvedBranches.has(a) ? 0 : 1;
+				const bS = shelvedBranches.has(b) ? 0 : 1;
+				if (aS !== bS) {
+					return aS - bS;
+				}
 				return a.localeCompare(b);
 			});
 
-			return branches.map(
+			return filtered.map(
 				(name) =>
 					new BranchItem(
 						name,

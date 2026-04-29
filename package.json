@@ -69,6 +69,12 @@
 				"icon": "$(trash)"
 			},
 			{
+				"command": "gitShelving.filterBranches",
+				"title": "Search Branches",
+				"category": "Git Shelving",
+				"icon": "$(search)"
+			},
+			{
 				"command": "gitShelving.discardAndSwitchBranch",
 				"title": "Discard & Switch",
 				"category": "Git Shelving",
@@ -83,6 +89,11 @@
 		],
 		"menus": {
 			"view/title": [
+				{
+					"command": "gitShelving.filterBranches",
+					"when": "view == gitShelving.branchesView",
+					"group": "navigation@0"
+				},
 				{
 					"command": "gitShelving.refresh",
 					"when": "view == gitShelving.branchesView || view == gitShelving.shelvesView",
@@ -133,6 +144,10 @@
 				},
 				{
 					"command": "gitShelving.discardAndSwitchBranch",
+					"when": "false"
+				},
+				{
+					"command": "gitShelving.filterBranches",
 					"when": "false"
 				}
 			]

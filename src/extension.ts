@@ -65,7 +65,14 @@ export async function activate(
 
 					const picks = branches
 						.filter((b) => b !== currentBranch)
-						.sort()
+						.sort((a, b) => {
+							const aS = shelvedSet.has(a) ? 0 : 1;
+							const bS = shelvedSet.has(b) ? 0 : 1;
+							if (aS !== bS) {
+								return aS - bS;
+							}
+							return a.localeCompare(b);
+						})
 						.map((b) => ({
 							label: `$(git-branch)  ${b}`,
 							description: shelvedSet.has(b) ? "$(archive) has shelf" : "",
@@ -145,11 +152,26 @@ export async function activate(
 				if (item instanceof BranchItem) {
 					targetBranch = item.branchName;
 				} else {
-					const branches = await git.getLocalBranches();
+					const [branches, shelves] = await Promise.all([
+						git.getLocalBranches(),
+						shelveManager.getAllShelves(),
+					]);
+					const shelvedSet = new Set(shelves.map((s) => s.branchName));
 					const picks = branches
 						.filter((b) => b !== currentBranch)
-						.sort()
-						.map((b) => ({ label: `$(git-branch)  ${b}`, branchName: b }));
+						.sort((a, b) => {
+							const aS = shelvedSet.has(a) ? 0 : 1;
+							const bS = shelvedSet.has(b) ? 0 : 1;
+							if (aS !== bS) {
+								return aS - bS;
+							}
+							return a.localeCompare(b);
+						})
+						.map((b) => ({
+							label: `$(git-branch)  ${b}`,
+							description: shelvedSet.has(b) ? "$(archive) has shelf" : "",
+							branchName: b,
+						}));
 
 					if (picks.length === 0) {
 						vscode.window.showInformationMessage(
@@ -328,6 +350,25 @@ export async function activate(
 	);
 
 	// -------------------------------------------------------------------------
+	// Filter Branches
+	// -------------------------------------------------------------------------
+	const filterBranches = vscode.commands.registerCommand(
+		"gitShelving.filterBranches",
+		async () => {
+			const query = await vscode.window.showInputBox({
+				placeHolder: "Type to filter branches…",
+				value: branchesProvider.getFilter(),
+				prompt: "Leave empty to clear the filter",
+			});
+			if (query === undefined) {
+				return;
+			} // escaped
+			branchesProvider.setFilter(query);
+			branchesView.description = query || undefined;
+		},
+	);
+
+	// -------------------------------------------------------------------------
 	// Refresh
 	// -------------------------------------------------------------------------
 	const refresh = vscode.commands.registerCommand(
@@ -344,6 +385,7 @@ export async function activate(
 		unshelveChanges,
 		unshelveShelf,
 		deleteShelf,
+		filterBranches,
 		refresh,
 	);
 }
