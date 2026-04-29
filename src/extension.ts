@@ -3,6 +3,7 @@ import { GitService } from "./gitService";
 import { ShelveManager } from "./shelveManager";
 import { BranchItem, BranchesProvider } from "./branchesProvider";
 import { ShelfItem, ShelvesProvider } from "./shelvesProvider";
+import { RecentBranches } from "./recentBranches";
 
 export async function activate(
 	context: vscode.ExtensionContext,
@@ -22,7 +23,12 @@ export async function activate(
 	}
 
 	const shelveManager = new ShelveManager(git);
-	const branchesProvider = new BranchesProvider(git, shelveManager);
+	const recentBranches = new RecentBranches(context.workspaceState);
+	const branchesProvider = new BranchesProvider(
+		git,
+		shelveManager,
+		recentBranches,
+	);
 	const shelvesProvider = new ShelvesProvider(shelveManager);
 
 	const branchesView = vscode.window.createTreeView(
@@ -71,6 +77,11 @@ export async function activate(
 							if (aS !== bS) {
 								return aS - bS;
 							}
+							const aR = recentBranches.rank(a);
+							const bR = recentBranches.rank(b);
+							if (aR !== bR) {
+								return aR - bR;
+							}
 							return a.localeCompare(b);
 						})
 						.map((b) => ({
@@ -78,7 +89,6 @@ export async function activate(
 							description: shelvedSet.has(b) ? "$(archive) has shelf" : "",
 							branchName: b,
 						}));
-
 					if (picks.length === 0) {
 						vscode.window.showInformationMessage(
 							"No other local branches found.",
@@ -110,6 +120,7 @@ export async function activate(
 				}
 
 				await git.checkout(targetBranch);
+				await recentBranches.record(targetBranch);
 
 				// Auto-restore shelf if one exists for the target branch.
 				const shelf = await shelveManager.getShelfForBranch(targetBranch);
@@ -165,6 +176,11 @@ export async function activate(
 							if (aS !== bS) {
 								return aS - bS;
 							}
+							const aR = recentBranches.rank(a);
+							const bR = recentBranches.rank(b);
+							if (aR !== bR) {
+								return aR - bR;
+							}
 							return a.localeCompare(b);
 						})
 						.map((b) => ({
@@ -207,6 +223,7 @@ export async function activate(
 				}
 
 				await git.checkout(targetBranch);
+				await recentBranches.record(targetBranch);
 
 				// Auto-restore shelf if one exists for the target branch.
 				const shelf = await shelveManager.getShelfForBranch(targetBranch);
@@ -305,6 +322,7 @@ export async function activate(
 						return;
 					}
 					await git.checkout(targetBranch);
+					await recentBranches.record(targetBranch);
 				}
 
 				await shelveManager.unshelve(targetBranch);

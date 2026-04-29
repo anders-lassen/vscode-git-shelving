@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { GitService } from "./gitService";
 import { ShelveManager } from "./shelveManager";
+import { RecentBranches } from "./recentBranches";
 
 export type BranchContextValue =
 	| "branch"
@@ -63,6 +64,7 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
 	constructor(
 		private readonly git: GitService,
 		private readonly shelveManager: ShelveManager,
+		private readonly recentBranches: RecentBranches,
 	) {}
 
 	setFilter(query: string): void {
@@ -98,7 +100,7 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
 				? branches.filter((b) => b.toLowerCase().includes(q))
 				: branches;
 
-			// Current branch first, then shelved, then alphabetical.
+			// Current branch first, then shelved, then recently used, then alphabetical.
 			filtered.sort((a, b) => {
 				if (a === currentBranch) {
 					return -1;
@@ -110,6 +112,11 @@ export class BranchesProvider implements vscode.TreeDataProvider<BranchItem> {
 				const bS = shelvedBranches.has(b) ? 0 : 1;
 				if (aS !== bS) {
 					return aS - bS;
+				}
+				const aR = this.recentBranches.rank(a);
+				const bR = this.recentBranches.rank(b);
+				if (aR !== bR) {
+					return aR - bR;
 				}
 				return a.localeCompare(b);
 			});
