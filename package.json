@@ -138,15 +138,21 @@
 			]
 		}
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/anders-lassen/vscode-git-shelving"
+	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"lint": "eslint src --ext ts"
+		"lint": "eslint src --ext ts",
+		"package": "vsce package"
 	},
 	"devDependencies": {
 		"@types/node": "^20.0.0",
 		"@types/vscode": "^1.85.0",
+		"@vscode/vsce": "^3.9.1",
 		"typescript": "^5.3.0"
 	}
 }
