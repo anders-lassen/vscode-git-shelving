@@ -3,7 +3,7 @@
 	"displayName": "Git Shelving",
 	"description": "Branch-aware shelving system — stash changes per branch and restore them automatically when you switch back.",
 	"version": "0.1.0",
-	"publisher": "git-shelving",
+	"publisher": "anders-lassen",
 	"engines": {
 		"vscode": "^1.85.0"
 	},
